@@ -1,6 +1,6 @@
 # SPEC 03 — Niveles múltiples y HUD de vidas
 
-> **Estado:** aprobado
+> **Estado:** implementado
 > **Depende de:** 01-mvp-arkanoid, 02-block-destruction-animation
 > **Fecha:** 2026-07-30
 > **Objetivo:** Al romper todos los bloques de un nivel, el juego avanza automáticamente al siguiente de 3 niveles (cada uno con un patrón de huecos distinto y la pelota 15% más rápida que el anterior), mostrando un overlay breve de "Nivel completado" y un HUD de vidas restantes con íconos de pelota, hasta mostrar "¡Ganaste!" al completar el nivel 3.
@@ -100,18 +100,18 @@ Convenciones:
 
 ## Acceptance criteria
 
-- [ ] El juego arranca en el nivel 1, con el grid completo de 48 bloques (sin huecos) y la pelota a su velocidad base.
-- [ ] Al romper todos los bloques del nivel 1, se muestra un overlay "Nivel 1 completado" durante ~1.5 segundos y luego el juego continúa automáticamente, sin requerir tecla ni click.
-- [ ] El nivel 2 usa el layout con hueco en forma de diamante al centro, y la pelota se mueve un 15% más rápido que en el nivel 1.
-- [ ] El nivel 3 usa el layout en patrón de tablero de ajedrez, y la pelota se mueve un 30% más rápido que la velocidad base (15% acumulado sobre el nivel 2).
-- [ ] El puntaje y las vidas restantes se mantienen (no se reinician) al pasar de un nivel a otro.
-- [ ] Al romper todos los bloques del nivel 3, se muestra el overlay "¡Ganaste!" (no "Nivel 3 completado"), y el juego deja de actualizarse.
-- [ ] Las vidas restantes se muestran en todo momento en la esquina superior derecha del canvas, como íconos del sprite de pelota (uno por vida), y se actualizan al perder una vida.
-- [ ] El puntaje sigue mostrándose en la esquina superior izquierda, sin cambios de posición respecto al MVP.
-- [ ] Perder todas las vidas en cualquier nivel (1, 2 o 3) muestra el overlay "Game Over" existente, sin diferencias respecto al comportamiento actual.
-- [ ] Reiniciar la partida (tecla/click sobre "Game Over" o "¡Ganaste!") vuelve siempre al nivel 1, con el layout y la velocidad base, puntaje en 0 y 3 vidas.
-- [ ] La detección de colisión pelota-bloque, el sonido `break-sound.mp3`, las explosiones y el sonido de rebote en paredes/paleta siguen funcionando exactamente igual que antes en cada nivel.
-- [ ] No hay errores en la consola del navegador durante una partida completa de los 3 niveles.
+- [x] El juego arranca en el nivel 1, con el grid completo de 48 bloques (sin huecos) y la pelota a su velocidad base.
+- [x] Al romper todos los bloques del nivel 1, se muestra un overlay "Nivel 1 completado" durante ~1.5 segundos y luego el juego continúa automáticamente, sin requerir tecla ni click.
+- [x] El nivel 2 usa el layout con hueco en forma de diamante al centro, y la pelota se mueve un 15% más rápido que en el nivel 1.
+- [x] El nivel 3 usa el layout en patrón de tablero de ajedrez, y la pelota se mueve un 30% más rápido que la velocidad base (15% acumulado sobre el nivel 2).
+- [x] El puntaje y las vidas restantes se mantienen (no se reinician) al pasar de un nivel a otro.
+- [x] Al romper todos los bloques del nivel 3, se muestra el overlay "¡Ganaste!" (no "Nivel 3 completado"), y el juego deja de actualizarse.
+- [x] Las vidas restantes se muestran en todo momento en la esquina superior derecha del canvas, como íconos del sprite de pelota (uno por vida), y se actualizan al perder una vida.
+- [x] El puntaje sigue mostrándose en la esquina superior izquierda, sin cambios de posición respecto al MVP.
+- [x] Perder todas las vidas en cualquier nivel (1, 2 o 3) muestra el overlay "Game Over" existente, sin diferencias respecto al comportamiento actual.
+- [x] Reiniciar la partida (tecla/click sobre "Game Over" o "¡Ganaste!") vuelve siempre al nivel 1, con el layout y la velocidad base, puntaje en 0 y 3 vidas.
+- [x] La detección de colisión pelota-bloque, el sonido `break-sound.mp3`, las explosiones y el sonido de rebote en paredes/paleta siguen funcionando exactamente igual que antes en cada nivel.
+- [x] No hay errores en la consola del navegador durante una partida completa de los 3 niveles.
 
 ## Decisions
 
