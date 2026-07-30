@@ -57,10 +57,12 @@ const LEVEL_LAYOUTS = [
   ],
 ];
 
-function createBlocks() {
+function generateBlocks(level) {
+  const layout = LEVEL_LAYOUTS[level - 1];
   const blocks = [];
   for (let row = 0; row < BLOCK_ROWS; row++) {
     for (let col = 0; col < BLOCK_COLS; col++) {
+      if (!layout[row][col]) continue;
       blocks.push({
         x: col * BLOCK_WIDTH,
         y: BLOCK_TOP_OFFSET + row * BLOCK_HEIGHT,
@@ -89,7 +91,7 @@ const state = {
     dx: BALL_SPEED * 0.5,  // componente x inicial
     dy: -BALL_SPEED,       // sube al arrancar
   },
-  blocks: createBlocks(),
+  blocks: generateBlocks(1),
   explosions: [],
   level: 1,                    // nivel actual, 1..LEVEL_COUNT
   levelCompleteStartTime: null, // timestamp de inicio del overlay "Nivel X completado"; null si no aplica
@@ -324,7 +326,7 @@ function resetGame() {
   state.score = 0;
   state.lives = INITIAL_LIVES;
   state.status = 'playing';
-  state.blocks = createBlocks();
+  state.blocks = generateBlocks(1);
   state.explosions = [];
   resetBallAndPaddle();
 }
