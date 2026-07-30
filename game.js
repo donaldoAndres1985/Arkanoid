@@ -123,10 +123,24 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
+  if (state.status !== 'playing') {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      resetGame();
+    }
+    return;
+  }
+
   if (e.key === 'ArrowLeft') {
     state.paddle.x = clampPaddleX(state.paddle.x - PADDLE_SPEED);
   } else if (e.key === 'ArrowRight') {
     state.paddle.x = clampPaddleX(state.paddle.x + PADDLE_SPEED);
+  }
+});
+
+canvas.addEventListener('click', () => {
+  if (state.status !== 'playing') {
+    resetGame();
   }
 });
 
@@ -234,6 +248,14 @@ function resetBallAndPaddle() {
   state.ball.y = CANVAS_HEIGHT - 60;
   state.ball.dx = BALL_SPEED * 0.5;
   state.ball.dy = -BALL_SPEED;
+}
+
+function resetGame() {
+  state.score = 0;
+  state.lives = INITIAL_LIVES;
+  state.status = 'playing';
+  state.blocks = createBlocks();
+  resetBallAndPaddle();
 }
 
 function checkBottomEdge() {
