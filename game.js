@@ -356,6 +356,8 @@ function resetGame() {
   state.score = 0;
   state.lives = INITIAL_LIVES;
   state.status = 'playing';
+  state.level = 1;
+  state.levelCompleteStartTime = null;
   state.blocks = generateBlocks(1);
   state.explosions = [];
   resetBallAndPaddle();
