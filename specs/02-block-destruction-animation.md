@@ -1,6 +1,6 @@
 # SPEC 02 — Animación de destrucción de bloques
 
-> **Estado:** aprobado
+> **Estado:** implementado
 > **Depende de:** 01-mvp-arkanoid
 > **Fecha:** 2026-07-30
 > **Objetivo:** Al romper un bloque, en lugar de desaparecer instantáneamente, se reproduce en su lugar la animación de explosión de 4 frames ya presente en el spritesheet (según el color del bloque) antes de desvanecerse por completo.
@@ -58,14 +58,14 @@ Convenciones:
 
 ## Acceptance criteria
 
-- [ ] Al romper un bloque, en lugar de desaparecer instantáneamente se reproduce en su lugar una animación de 4 frames antes de desvanecerse por completo.
-- [ ] La animación usa los frames correspondientes al color del bloque roto (`EXPLOSION_FRAMES[color]`).
-- [ ] La animación dura aproximadamente `EXPLOSION_DURATION` (150ms) y luego desaparece sin dejar rastro.
-- [ ] La animación se dibuja escalada al tamaño del bloque (60x20), en la misma posición donde estaba el bloque.
-- [ ] Romper varios bloques en sucesión rápida muestra varias animaciones de explosión simultáneas e independientes, sin errores en consola.
-- [ ] `break-sound.mp3` sigue sonando en el momento del impacto, sin cambios respecto al comportamiento actual.
-- [ ] El puntaje, la detección de colisión y la condición de victoria (todos los bloques rotos) siguen funcionando exactamente igual que antes de este spec.
-- [ ] Al reiniciar el juego (Game Over/Victoria → reinicio), no quedan explosiones "colgadas" de la partida anterior.
+- [x] Al romper un bloque, en lugar de desaparecer instantáneamente se reproduce en su lugar una animación de 4 frames antes de desvanecerse por completo.
+- [x] La animación usa los frames correspondientes al color del bloque roto (`EXPLOSION_FRAMES[color]`).
+- [x] La animación dura aproximadamente `EXPLOSION_DURATION` (150ms) y luego desaparece sin dejar rastro.
+- [x] La animación se dibuja escalada al tamaño del bloque (60x20), en la misma posición donde estaba el bloque.
+- [x] Romper varios bloques en sucesión rápida muestra varias animaciones de explosión simultáneas e independientes, sin errores en consola.
+- [x] `break-sound.mp3` sigue sonando en el momento del impacto, sin cambios respecto al comportamiento actual.
+- [x] El puntaje, la detección de colisión y la condición de victoria (todos los bloques rotos) siguen funcionando exactamente igual que antes de este spec.
+- [x] Al reiniciar el juego (Game Over/Victoria → reinicio), no quedan explosiones "colgadas" de la partida anterior.
 
 ## Decisions
 
