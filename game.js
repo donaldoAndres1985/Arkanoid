@@ -57,6 +57,10 @@ const LEVEL_LAYOUTS = [
   ],
 ];
 
+function getBallSpeedForLevel(level) {
+  return BALL_SPEED * (1 + BALL_SPEED_INCREMENT * (level - 1));
+}
+
 function generateBlocks(level) {
   const layout = LEVEL_LAYOUTS[level - 1];
   const blocks = [];
@@ -243,11 +247,12 @@ function checkPaddleCollision() {
 
   const hitPos = Math.max(0, Math.min(1, (ball.x - paddle.x) / PADDLE_WIDTH));
   const angle = (hitPos - 0.5) * 2 * MAX_BOUNCE_ANGLE;
+  const speed = getBallSpeedForLevel(state.level);
 
-  ball.dx = BALL_SPEED * Math.sin(angle);
-  ball.dy = -BALL_SPEED * Math.cos(angle);
+  ball.dx = speed * Math.sin(angle);
+  ball.dy = -speed * Math.cos(angle);
 
-  const minDy = BALL_SPEED * MIN_DY_RATIO;
+  const minDy = speed * MIN_DY_RATIO;
   if (Math.abs(ball.dy) < minDy) {
     ball.dy = -minDy;
   }
@@ -315,11 +320,12 @@ function checkWinCondition() {
 }
 
 function resetBallAndPaddle() {
+  const speed = getBallSpeedForLevel(state.level);
   state.paddle.x = (CANVAS_WIDTH - PADDLE_WIDTH) / 2;
   state.ball.x = CANVAS_WIDTH / 2;
   state.ball.y = CANVAS_HEIGHT - 60;
-  state.ball.dx = BALL_SPEED * 0.5;
-  state.ball.dy = -BALL_SPEED;
+  state.ball.dx = speed * 0.5;
+  state.ball.dy = -speed;
 }
 
 function resetGame() {
