@@ -21,6 +21,42 @@ const BALL_SPEED = 5;     // magnitud de velocidad, px/frame
 const POINTS_PER_BLOCK = 10;
 const INITIAL_LIVES = 3;
 
+const LEVEL_COUNT = 3;
+const BALL_SPEED_INCREMENT = 0.15; // +15% acumulado de velocidad por nivel
+const LEVEL_COMPLETE_DURATION = 1500; // ms que dura el overlay "Nivel X completado"
+const LIFE_ICON_SIZE = 16; // tamaño del ícono de vida (sprite 'ball' es 16x16 nativo)
+
+// Cada layout es una grilla BLOCK_ROWS x BLOCK_COLS (6x8): 1 = bloque presente, 0 = hueco.
+const LEVEL_LAYOUTS = [
+  // Nivel 1: grid completo, sin huecos (igual al MVP actual)
+  [
+    [1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1],
+  ],
+  // Nivel 2: hueco en forma de diamante al centro
+  [
+    [1,1,1,1,1,1,1,1],
+    [1,1,1,0,0,1,1,1],
+    [1,1,0,0,0,0,1,1],
+    [1,1,0,0,0,0,1,1],
+    [1,1,1,0,0,1,1,1],
+    [1,1,1,1,1,1,1,1],
+  ],
+  // Nivel 3: patrón de tablero de ajedrez
+  [
+    [1,0,1,0,1,0,1,0],
+    [0,1,0,1,0,1,0,1],
+    [1,0,1,0,1,0,1,0],
+    [0,1,0,1,0,1,0,1],
+    [1,0,1,0,1,0,1,0],
+    [0,1,0,1,0,1,0,1],
+  ],
+];
+
 function createBlocks() {
   const blocks = [];
   for (let row = 0; row < BLOCK_ROWS; row++) {
@@ -55,6 +91,8 @@ const state = {
   },
   blocks: createBlocks(),
   explosions: [],
+  level: 1,                    // nivel actual, 1..LEVEL_COUNT
+  levelCompleteStartTime: null, // timestamp de inicio del overlay "Nivel X completado"; null si no aplica
 };
 
 function drawBlocks() {
