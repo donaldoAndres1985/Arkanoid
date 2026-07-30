@@ -95,19 +95,45 @@ canvas.addEventListener('mousemove', (e) => {
   const rect = canvas.getBoundingClientRect();
   const mouseX = e.clientX - rect.left;
   state.paddle.x = clampPaddleX(mouseX - PADDLE_WIDTH / 2);
-  render();
 });
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft') {
     state.paddle.x = clampPaddleX(state.paddle.x - PADDLE_SPEED);
-    render();
   } else if (e.key === 'ArrowRight') {
     state.paddle.x = clampPaddleX(state.paddle.x + PADDLE_SPEED);
-    render();
   }
 });
 
-loadSpritesheet(() => {
+function updateBall() {
+  const ball = state.ball;
+  ball.x += ball.dx;
+  ball.y += ball.dy;
+
+  if (ball.x - BALL_RADIUS <= 0) {
+    ball.x = BALL_RADIUS;
+    ball.dx = -ball.dx;
+  } else if (ball.x + BALL_RADIUS >= CANVAS_WIDTH) {
+    ball.x = CANVAS_WIDTH - BALL_RADIUS;
+    ball.dx = -ball.dx;
+  }
+
+  if (ball.y - BALL_RADIUS <= 0) {
+    ball.y = BALL_RADIUS;
+    ball.dy = -ball.dy;
+  }
+}
+
+function update() {
+  updateBall();
+}
+
+function loop() {
+  update();
   render();
+  requestAnimationFrame(loop);
+}
+
+loadSpritesheet(() => {
+  requestAnimationFrame(loop);
 });
