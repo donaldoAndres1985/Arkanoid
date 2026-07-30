@@ -205,10 +205,29 @@ function checkBlockCollisions() {
   }
 }
 
+function resetBallAndPaddle() {
+  state.paddle.x = (CANVAS_WIDTH - PADDLE_WIDTH) / 2;
+  state.ball.x = CANVAS_WIDTH / 2;
+  state.ball.y = CANVAS_HEIGHT - 60;
+  state.ball.dx = BALL_SPEED * 0.5;
+  state.ball.dy = -BALL_SPEED;
+}
+
+function checkBottomEdge() {
+  const ball = state.ball;
+  if (ball.y - BALL_RADIUS <= CANVAS_HEIGHT) return;
+
+  state.lives -= 1;
+  if (state.lives > 0) {
+    resetBallAndPaddle();
+  }
+}
+
 function update() {
   updateBall();
   checkPaddleCollision();
   checkBlockCollisions();
+  checkBottomEdge();
 }
 
 function loop() {
