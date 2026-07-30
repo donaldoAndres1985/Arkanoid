@@ -87,6 +87,27 @@ function render() {
   drawBall();
 }
 
+function clampPaddleX(x) {
+  return Math.max(0, Math.min(CANVAS_WIDTH - PADDLE_WIDTH, x));
+}
+
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  state.paddle.x = clampPaddleX(mouseX - PADDLE_WIDTH / 2);
+  render();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') {
+    state.paddle.x = clampPaddleX(state.paddle.x - PADDLE_SPEED);
+    render();
+  } else if (e.key === 'ArrowRight') {
+    state.paddle.x = clampPaddleX(state.paddle.x + PADDLE_SPEED);
+    render();
+  }
+});
+
 loadSpritesheet(() => {
   render();
 });
