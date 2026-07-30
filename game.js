@@ -144,6 +144,13 @@ canvas.addEventListener('click', () => {
   }
 });
 
+const ballBounceSound = new Audio('assets/sounds/ball-bounce.mp3');
+
+function playBallBounceSound() {
+  ballBounceSound.currentTime = 0;
+  ballBounceSound.play().catch(() => {});
+}
+
 function updateBall() {
   const ball = state.ball;
   ball.x += ball.dx;
@@ -152,14 +159,17 @@ function updateBall() {
   if (ball.x - BALL_RADIUS <= 0) {
     ball.x = BALL_RADIUS;
     ball.dx = -ball.dx;
+    playBallBounceSound();
   } else if (ball.x + BALL_RADIUS >= CANVAS_WIDTH) {
     ball.x = CANVAS_WIDTH - BALL_RADIUS;
     ball.dx = -ball.dx;
+    playBallBounceSound();
   }
 
   if (ball.y - BALL_RADIUS <= 0) {
     ball.y = BALL_RADIUS;
     ball.dy = -ball.dy;
+    playBallBounceSound();
   }
 }
 
@@ -188,6 +198,7 @@ function checkPaddleCollision() {
   }
 
   ball.y = paddle.y - BALL_RADIUS;
+  playBallBounceSound();
 }
 
 const breakSound = new Audio('assets/sounds/break-sound.mp3');
