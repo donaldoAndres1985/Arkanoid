@@ -124,8 +124,36 @@ function updateBall() {
   }
 }
 
+const MAX_BOUNCE_ANGLE = Math.PI / 3; // 60°: extremos de la paleta rebotan más horizontal
+const MIN_DY_RATIO = 0.15; // evita que dy quede casi en 0 (rebote horizontal infinito)
+
+function checkPaddleCollision() {
+  const ball = state.ball;
+  const paddle = state.paddle;
+
+  if (ball.dy <= 0) return;
+
+  const withinX = ball.x + BALL_RADIUS >= paddle.x && ball.x - BALL_RADIUS <= paddle.x + PADDLE_WIDTH;
+  const withinY = ball.y + BALL_RADIUS >= paddle.y && ball.y - BALL_RADIUS <= paddle.y + PADDLE_HEIGHT;
+  if (!withinX || !withinY) return;
+
+  const hitPos = Math.max(0, Math.min(1, (ball.x - paddle.x) / PADDLE_WIDTH));
+  const angle = (hitPos - 0.5) * 2 * MAX_BOUNCE_ANGLE;
+
+  ball.dx = BALL_SPEED * Math.sin(angle);
+  ball.dy = -BALL_SPEED * Math.cos(angle);
+
+  const minDy = BALL_SPEED * MIN_DY_RATIO;
+  if (Math.abs(ball.dy) < minDy) {
+    ball.dy = -minDy;
+  }
+
+  ball.y = paddle.y - BALL_RADIUS;
+}
+
 function update() {
   updateBall();
+  checkPaddleCollision();
 }
 
 function loop() {
