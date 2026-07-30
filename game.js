@@ -54,6 +54,7 @@ const state = {
     dy: -BALL_SPEED,       // sube al arrancar
   },
   blocks: createBlocks(),
+  explosions: [],
 };
 
 function drawBlocks() {
@@ -266,6 +267,7 @@ function resetGame() {
   state.lives = INITIAL_LIVES;
   state.status = 'playing';
   state.blocks = createBlocks();
+  state.explosions = [];
   resetBallAndPaddle();
 }
 

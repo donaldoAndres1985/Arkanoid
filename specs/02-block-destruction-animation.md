@@ -1,6 +1,6 @@
 # SPEC 02 — Animación de destrucción de bloques
 
-> **Estado:** Draft
+> **Estado:** aprobado
 > **Depende de:** 01-mvp-arkanoid
 > **Fecha:** 2026-07-30
 > **Objetivo:** Al romper un bloque, en lugar de desaparecer instantáneamente, se reproduce en su lugar la animación de explosión de 4 frames ya presente en el spritesheet (según el color del bloque) antes de desvanecerse por completo.
