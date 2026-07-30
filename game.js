@@ -362,9 +362,22 @@ function update() {
   checkBottomEdge();
 }
 
+function advanceLevelIfReady() {
+  if (performance.now() - state.levelCompleteStartTime < LEVEL_COMPLETE_DURATION) return;
+
+  state.level += 1;
+  state.blocks = generateBlocks(state.level);
+  state.explosions = [];
+  resetBallAndPaddle();
+  state.levelCompleteStartTime = null;
+  state.status = 'playing';
+}
+
 function loop() {
   if (state.status === 'playing') {
     update();
+  } else if (state.status === 'level-complete') {
+    advanceLevelIfReady();
   }
   render();
   requestAnimationFrame(loop);
