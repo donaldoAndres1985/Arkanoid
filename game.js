@@ -85,6 +85,22 @@ function drawScore() {
   ctx.fillText(`Score: ${state.score}`, 10, BLOCK_TOP_OFFSET / 2);
 }
 
+function drawOverlay() {
+  if (state.status === 'playing') return;
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = '32px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const message = state.status === 'gameover' ? 'Game Over' : '¡Ganaste!';
+  ctx.fillText(message, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+  ctx.restore();
+}
+
 function render() {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -93,6 +109,7 @@ function render() {
   drawPaddle();
   drawBall();
   drawScore();
+  drawOverlay();
 }
 
 function clampPaddleX(x) {
@@ -205,6 +222,12 @@ function checkBlockCollisions() {
   }
 }
 
+function checkWinCondition() {
+  if (state.blocks.every((block) => !block.alive)) {
+    state.status = 'win';
+  }
+}
+
 function resetBallAndPaddle() {
   state.paddle.x = (CANVAS_WIDTH - PADDLE_WIDTH) / 2;
   state.ball.x = CANVAS_WIDTH / 2;
@@ -220,6 +243,8 @@ function checkBottomEdge() {
   state.lives -= 1;
   if (state.lives > 0) {
     resetBallAndPaddle();
+  } else {
+    state.status = 'gameover';
   }
 }
 
@@ -227,11 +252,14 @@ function update() {
   updateBall();
   checkPaddleCollision();
   checkBlockCollisions();
+  checkWinCondition();
   checkBottomEdge();
 }
 
 function loop() {
-  update();
+  if (state.status === 'playing') {
+    update();
+  }
   render();
   requestAnimationFrame(loop);
 }
