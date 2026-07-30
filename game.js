@@ -143,6 +143,15 @@ function drawScore() {
   ctx.fillText(`Score: ${state.score}`, 10, BLOCK_TOP_OFFSET / 2);
 }
 
+function drawLives() {
+  const margin = 6;
+  const y = (BLOCK_TOP_OFFSET - LIFE_ICON_SIZE) / 2;
+  for (let i = 0; i < state.lives; i++) {
+    const x = CANVAS_WIDTH - margin - (i + 1) * LIFE_ICON_SIZE - i * margin;
+    drawSprite(ctx, 'ball', x, y, LIFE_ICON_SIZE, LIFE_ICON_SIZE);
+  }
+}
+
 function drawOverlay() {
   if (state.status === 'playing') return;
 
@@ -175,6 +184,7 @@ function render() {
   drawPaddle();
   drawBall();
   drawScore();
+  drawLives();
   drawOverlay();
 }
 
