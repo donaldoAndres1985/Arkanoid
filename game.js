@@ -242,6 +242,12 @@ function checkBlockCollisions() {
 
     block.alive = false;
     state.score += POINTS_PER_BLOCK;
+    state.explosions.push({
+      x: block.x,
+      y: block.y,
+      color: block.color,
+      startTime: performance.now(),
+    });
     resolveBlockBounce(ball, block);
     playBreakSound();
     break;
