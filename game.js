@@ -79,6 +79,19 @@ function drawBall() {
   );
 }
 
+function drawExplosions() {
+  const now = performance.now();
+  state.explosions = state.explosions.filter((explosion) => {
+    const elapsed = now - explosion.startTime;
+    if (elapsed >= EXPLOSION_DURATION) return false;
+
+    const frameIndex = Math.min(3, Math.floor(elapsed / (EXPLOSION_DURATION / 4)));
+    const frame = EXPLOSION_FRAMES[explosion.color][frameIndex];
+    drawFrame(ctx, frame, explosion.x, explosion.y, BLOCK_WIDTH, BLOCK_HEIGHT);
+    return true;
+  });
+}
+
 function drawScore() {
   ctx.fillStyle = '#fff';
   ctx.font = '16px sans-serif';
@@ -107,6 +120,7 @@ function render() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   drawBlocks();
+  drawExplosions();
   drawPaddle();
   drawBall();
   drawScore();
