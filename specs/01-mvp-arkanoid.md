@@ -1,6 +1,6 @@
 # SPEC 01 — MVP jugable de Arkanoid
 
-> **Estado:** aprobado
+> **Estado:** implementado
 > **Depende de:** Ninguno
 > **Fecha:** 2026-07-30
 > **Objetivo:** Un MVP jugable de Arkanoid en una sola pantalla, con paleta, pelota y bloques, controlable con mouse y teclado, que se gana rompiendo todos los bloques o se pierde al agotar las vidas, y se puede reiniciar sin recargar la página.
