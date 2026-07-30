@@ -314,7 +314,12 @@ function checkBlockCollisions() {
 }
 
 function checkWinCondition() {
-  if (state.blocks.every((block) => !block.alive)) {
+  if (!state.blocks.every((block) => !block.alive)) return;
+
+  if (state.level < LEVEL_COUNT) {
+    state.status = 'level-complete';
+    state.levelCompleteStartTime = performance.now();
+  } else {
     state.status = 'win';
   }
 }
