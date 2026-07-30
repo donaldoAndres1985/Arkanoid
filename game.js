@@ -21,10 +21,52 @@ const BALL_SPEED = 5;     // magnitud de velocidad, px/frame
 const POINTS_PER_BLOCK = 10;
 const INITIAL_LIVES = 3;
 
-function createBlocks() {
+const LEVEL_COUNT = 3;
+const BALL_SPEED_INCREMENT = 0.15; // +15% acumulado de velocidad por nivel
+const LEVEL_COMPLETE_DURATION = 1500; // ms que dura el overlay "Nivel X completado"
+const LIFE_ICON_SIZE = 16; // tamaño del ícono de vida (sprite 'ball' es 16x16 nativo)
+
+// Cada layout es una grilla BLOCK_ROWS x BLOCK_COLS (6x8): 1 = bloque presente, 0 = hueco.
+const LEVEL_LAYOUTS = [
+  // Nivel 1: grid completo, sin huecos (igual al MVP actual)
+  [
+    [1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1],
+  ],
+  // Nivel 2: hueco en forma de diamante al centro
+  [
+    [1,1,1,1,1,1,1,1],
+    [1,1,1,0,0,1,1,1],
+    [1,1,0,0,0,0,1,1],
+    [1,1,0,0,0,0,1,1],
+    [1,1,1,0,0,1,1,1],
+    [1,1,1,1,1,1,1,1],
+  ],
+  // Nivel 3: patrón de tablero de ajedrez
+  [
+    [1,0,1,0,1,0,1,0],
+    [0,1,0,1,0,1,0,1],
+    [1,0,1,0,1,0,1,0],
+    [0,1,0,1,0,1,0,1],
+    [1,0,1,0,1,0,1,0],
+    [0,1,0,1,0,1,0,1],
+  ],
+];
+
+function getBallSpeedForLevel(level) {
+  return BALL_SPEED * (1 + BALL_SPEED_INCREMENT * (level - 1));
+}
+
+function generateBlocks(level) {
+  const layout = LEVEL_LAYOUTS[level - 1];
   const blocks = [];
   for (let row = 0; row < BLOCK_ROWS; row++) {
     for (let col = 0; col < BLOCK_COLS; col++) {
+      if (!layout[row][col]) continue;
       blocks.push({
         x: col * BLOCK_WIDTH,
         y: BLOCK_TOP_OFFSET + row * BLOCK_HEIGHT,
@@ -53,7 +95,10 @@ const state = {
     dx: BALL_SPEED * 0.5,  // componente x inicial
     dy: -BALL_SPEED,       // sube al arrancar
   },
-  blocks: createBlocks(),
+  blocks: generateBlocks(1),
+  explosions: [],
+  level: 1,                    // nivel actual, 1..LEVEL_COUNT
+  levelCompleteStartTime: null, // timestamp de inicio del overlay "Nivel X completado"; null si no aplica
 };
 
 function drawBlocks() {
@@ -78,11 +123,33 @@ function drawBall() {
   );
 }
 
+function drawExplosions() {
+  const now = performance.now();
+  state.explosions = state.explosions.filter((explosion) => {
+    const elapsed = now - explosion.startTime;
+    if (elapsed >= EXPLOSION_DURATION) return false;
+
+    const frameIndex = Math.min(3, Math.floor(elapsed / (EXPLOSION_DURATION / 4)));
+    const frame = EXPLOSION_FRAMES[explosion.color][frameIndex];
+    drawFrame(ctx, frame, explosion.x, explosion.y, BLOCK_WIDTH, BLOCK_HEIGHT);
+    return true;
+  });
+}
+
 function drawScore() {
   ctx.fillStyle = '#fff';
   ctx.font = '16px sans-serif';
   ctx.textBaseline = 'middle';
   ctx.fillText(`Score: ${state.score}`, 10, BLOCK_TOP_OFFSET / 2);
+}
+
+function drawLives() {
+  const margin = 6;
+  const y = (BLOCK_TOP_OFFSET - LIFE_ICON_SIZE) / 2;
+  for (let i = 0; i < state.lives; i++) {
+    const x = CANVAS_WIDTH - margin - (i + 1) * LIFE_ICON_SIZE - i * margin;
+    drawSprite(ctx, 'ball', x, y, LIFE_ICON_SIZE, LIFE_ICON_SIZE);
+  }
 }
 
 function drawOverlay() {
@@ -96,7 +163,14 @@ function drawOverlay() {
   ctx.font = '32px sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  const message = state.status === 'gameover' ? 'Game Over' : '¡Ganaste!';
+  let message;
+  if (state.status === 'gameover') {
+    message = 'Game Over';
+  } else if (state.status === 'level-complete') {
+    message = `Nivel ${state.level} completado`;
+  } else {
+    message = '¡Ganaste!';
+  }
   ctx.fillText(message, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
   ctx.restore();
 }
@@ -106,9 +180,11 @@ function render() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   drawBlocks();
+  drawExplosions();
   drawPaddle();
   drawBall();
   drawScore();
+  drawLives();
   drawOverlay();
 }
 
@@ -123,13 +199,15 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
-  if (state.status !== 'playing') {
+  if (state.status === 'gameover' || state.status === 'win') {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       resetGame();
     }
     return;
   }
+
+  if (state.status !== 'playing') return;
 
   if (e.key === 'ArrowLeft') {
     state.paddle.x = clampPaddleX(state.paddle.x - PADDLE_SPEED);
@@ -139,7 +217,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 canvas.addEventListener('click', () => {
-  if (state.status !== 'playing') {
+  if (state.status === 'gameover' || state.status === 'win') {
     resetGame();
   }
 });
@@ -188,11 +266,12 @@ function checkPaddleCollision() {
 
   const hitPos = Math.max(0, Math.min(1, (ball.x - paddle.x) / PADDLE_WIDTH));
   const angle = (hitPos - 0.5) * 2 * MAX_BOUNCE_ANGLE;
+  const speed = getBallSpeedForLevel(state.level);
 
-  ball.dx = BALL_SPEED * Math.sin(angle);
-  ball.dy = -BALL_SPEED * Math.cos(angle);
+  ball.dx = speed * Math.sin(angle);
+  ball.dy = -speed * Math.cos(angle);
 
-  const minDy = BALL_SPEED * MIN_DY_RATIO;
+  const minDy = speed * MIN_DY_RATIO;
   if (Math.abs(ball.dy) < minDy) {
     ball.dy = -minDy;
   }
@@ -241,6 +320,12 @@ function checkBlockCollisions() {
 
     block.alive = false;
     state.score += POINTS_PER_BLOCK;
+    state.explosions.push({
+      x: block.x,
+      y: block.y,
+      color: block.color,
+      startTime: performance.now(),
+    });
     resolveBlockBounce(ball, block);
     playBreakSound();
     break;
@@ -248,24 +333,33 @@ function checkBlockCollisions() {
 }
 
 function checkWinCondition() {
-  if (state.blocks.every((block) => !block.alive)) {
+  if (!state.blocks.every((block) => !block.alive)) return;
+
+  if (state.level < LEVEL_COUNT) {
+    state.status = 'level-complete';
+    state.levelCompleteStartTime = performance.now();
+  } else {
     state.status = 'win';
   }
 }
 
 function resetBallAndPaddle() {
+  const speed = getBallSpeedForLevel(state.level);
   state.paddle.x = (CANVAS_WIDTH - PADDLE_WIDTH) / 2;
   state.ball.x = CANVAS_WIDTH / 2;
   state.ball.y = CANVAS_HEIGHT - 60;
-  state.ball.dx = BALL_SPEED * 0.5;
-  state.ball.dy = -BALL_SPEED;
+  state.ball.dx = speed * 0.5;
+  state.ball.dy = -speed;
 }
 
 function resetGame() {
   state.score = 0;
   state.lives = INITIAL_LIVES;
   state.status = 'playing';
-  state.blocks = createBlocks();
+  state.level = 1;
+  state.levelCompleteStartTime = null;
+  state.blocks = generateBlocks(1);
+  state.explosions = [];
   resetBallAndPaddle();
 }
 
@@ -289,9 +383,22 @@ function update() {
   checkBottomEdge();
 }
 
+function advanceLevelIfReady() {
+  if (performance.now() - state.levelCompleteStartTime < LEVEL_COMPLETE_DURATION) return;
+
+  state.level += 1;
+  state.blocks = generateBlocks(state.level);
+  state.explosions = [];
+  resetBallAndPaddle();
+  state.levelCompleteStartTime = null;
+  state.status = 'playing';
+}
+
 function loop() {
   if (state.status === 'playing') {
     update();
+  } else if (state.status === 'level-complete') {
+    advanceLevelIfReady();
   }
   render();
   requestAnimationFrame(loop);
