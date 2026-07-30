@@ -78,6 +78,13 @@ function drawBall() {
   );
 }
 
+function drawScore() {
+  ctx.fillStyle = '#fff';
+  ctx.font = '16px sans-serif';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(`Score: ${state.score}`, 10, BLOCK_TOP_OFFSET / 2);
+}
+
 function render() {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -85,6 +92,7 @@ function render() {
   drawBlocks();
   drawPaddle();
   drawBall();
+  drawScore();
 }
 
 function clampPaddleX(x) {
@@ -151,9 +159,56 @@ function checkPaddleCollision() {
   ball.y = paddle.y - BALL_RADIUS;
 }
 
+const breakSound = new Audio('assets/sounds/break-sound.mp3');
+
+function playBreakSound() {
+  breakSound.currentTime = 0;
+  breakSound.play().catch(() => {});
+}
+
+function isCollidingWithBlock(ball, block) {
+  return (
+    ball.x + BALL_RADIUS > block.x &&
+    ball.x - BALL_RADIUS < block.x + block.width &&
+    ball.y + BALL_RADIUS > block.y &&
+    ball.y - BALL_RADIUS < block.y + block.height
+  );
+}
+
+function resolveBlockBounce(ball, block) {
+  const overlapLeft = ball.x + BALL_RADIUS - block.x;
+  const overlapRight = block.x + block.width - (ball.x - BALL_RADIUS);
+  const overlapTop = ball.y + BALL_RADIUS - block.y;
+  const overlapBottom = block.y + block.height - (ball.y - BALL_RADIUS);
+
+  const minOverlapX = Math.min(overlapLeft, overlapRight);
+  const minOverlapY = Math.min(overlapTop, overlapBottom);
+
+  if (minOverlapX < minOverlapY) {
+    ball.dx = -ball.dx;
+  } else {
+    ball.dy = -ball.dy;
+  }
+}
+
+function checkBlockCollisions() {
+  const ball = state.ball;
+  for (const block of state.blocks) {
+    if (!block.alive) continue;
+    if (!isCollidingWithBlock(ball, block)) continue;
+
+    block.alive = false;
+    state.score += POINTS_PER_BLOCK;
+    resolveBlockBounce(ball, block);
+    playBreakSound();
+    break;
+  }
+}
+
 function update() {
   updateBall();
   checkPaddleCollision();
+  checkBlockCollisions();
 }
 
 function loop() {
