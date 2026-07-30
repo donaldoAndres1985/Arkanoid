@@ -154,7 +154,14 @@ function drawOverlay() {
   ctx.font = '32px sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  const message = state.status === 'gameover' ? 'Game Over' : '¡Ganaste!';
+  let message;
+  if (state.status === 'gameover') {
+    message = 'Game Over';
+  } else if (state.status === 'level-complete') {
+    message = `Nivel ${state.level} completado`;
+  } else {
+    message = '¡Ganaste!';
+  }
   ctx.fillText(message, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
   ctx.restore();
 }
@@ -182,13 +189,15 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
-  if (state.status !== 'playing') {
+  if (state.status === 'gameover' || state.status === 'win') {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       resetGame();
     }
     return;
   }
+
+  if (state.status !== 'playing') return;
 
   if (e.key === 'ArrowLeft') {
     state.paddle.x = clampPaddleX(state.paddle.x - PADDLE_SPEED);
@@ -198,7 +207,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 canvas.addEventListener('click', () => {
-  if (state.status !== 'playing') {
+  if (state.status === 'gameover' || state.status === 'win') {
     resetGame();
   }
 });
